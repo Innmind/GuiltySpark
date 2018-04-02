@@ -1,0 +1,6 @@
+installations:
+    prototype<string>+:
+        express: stream<string>+
+        contacts: stream<string>
+        workingDirectory: '?string'
+        spark: string
