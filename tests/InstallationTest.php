@@ -6,6 +6,7 @@ namespace Tests\Innmind\GuiltySpark;
 use Innmind\GuiltySpark\{
     Installation,
     Installation\Name,
+    Installation\Gene,
     Exception\InstallationMustExpressAtLeastOneGene,
 };
 use Innmind\Url\PathInterface;
@@ -18,7 +19,13 @@ class InstallationTest extends TestCase
     {
         $installation = new Installation(
             $name = new Name('foo'),
-            $genes = Stream::of('string', 'foo/bar'),
+            $genes = Stream::of(
+                Gene::class,
+                new Gene(
+                    new Gene\Name('foo/bar'),
+                    $this->createMock(PathInterface::class)
+                )
+            ),
             $contacts = Stream::of(Name::class),
             $path = $this->createMock(PathInterface::class),
             'spark'
@@ -34,11 +41,11 @@ class InstallationTest extends TestCase
     public function testThrowWhenInvalidGeneStream()
     {
         $this->expectException(\TypeError::class);
-        $this->expectExceptionMessage('Argument 2 must be of type StreamInterface<string>');
+        $this->expectExceptionMessage('Argument 2 must be of type StreamInterface<Innmind\GuiltySpark\Installation\Gene>');
 
         new Installation(
             new Name('foo'),
-            Stream::of('int', 42),
+            Stream::of('int'),
             Stream::of(Name::class),
             $this->createMock(PathInterface::class),
             'spark'
@@ -52,7 +59,7 @@ class InstallationTest extends TestCase
 
         new Installation(
             new Name('foo'),
-            Stream::of('string', 'foo/bar'),
+            Stream::of(Gene::class),
             Stream::of('string'),
             $this->createMock(PathInterface::class),
             'spark'
@@ -66,7 +73,7 @@ class InstallationTest extends TestCase
 
         new Installation(
             new Name('foo'),
-            Stream::of('string'),
+            Stream::of(Gene::class),
             Stream::of(Name::class),
             $this->createMock(PathInterface::class),
             'spark'
@@ -77,14 +84,26 @@ class InstallationTest extends TestCase
     {
         $foo = new Installation(
             new Name('foo'),
-            Stream::of('string', 'foo/bar'),
+            Stream::of(
+                Gene::class,
+                new Gene(
+                    new Gene\Name('foo/bar'),
+                    $this->createMock(PathInterface::class)
+                )
+            ),
             Stream::of(Name::class, new Name('bar')),
             $this->createMock(PathInterface::class),
             'spark'
         );
         $bar = new Installation(
             new Name('bar'),
-            Stream::of('string', 'foo/bar'),
+            Stream::of(
+                Gene::class,
+                new Gene(
+                    new Gene\Name('foo/bar'),
+                    $this->createMock(PathInterface::class)
+                )
+            ),
             Stream::of(Name::class),
             $this->createMock(PathInterface::class),
             'spark'

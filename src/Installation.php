@@ -5,6 +5,7 @@ namespace Innmind\GuiltySpark;
 
 use Innmind\GuiltySpark\{
     Installation\Name,
+    Installation\Gene,
     Exception\InstallationMustExpressAtLeastOneGene,
 };
 use Innmind\Url\PathInterface;
@@ -27,8 +28,11 @@ final class Installation
         PathInterface $workingDirectory,
         string $spark
     ) {
-        if ((string) $genes->type() !== 'string') {
-            throw new \TypeError('Argument 2 must be of type StreamInterface<string>');
+        if ((string) $genes->type() !== Gene::class) {
+            throw new \TypeError(sprintf(
+                'Argument 2 must be of type StreamInterface<%s>',
+                Gene::class
+            ));
         }
 
         if ((string) $contacts->type() !== Name::class) {
@@ -55,7 +59,7 @@ final class Installation
     }
 
     /**
-     * @return StreamInterface<string>
+     * @return StreamInterface<Gene>
      */
     public function genes(): StreamInterface
     {

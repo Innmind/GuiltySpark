@@ -7,6 +7,7 @@ use Innmind\GuiltySpark\{
     InstallationArray,
     Installation,
     Installation\Name,
+    Installation\Gene,
     Exception\UnknownInstallations,
 };
 use Innmind\Url\PathInterface;
@@ -20,21 +21,39 @@ class InstallationArrayTest extends TestCase
         $array = new InstallationArray(
             $foo = new Installation(
                 new Name('foo'),
-                Stream::of('string', 'foo/bar'),
+                Stream::of(
+                    Gene::class,
+                    new Gene(
+                        new Gene\Name('foo/bar'),
+                        $this->createMock(PathInterface::class)
+                    )
+                ),
                 Stream::of(Name::class, new Name('baz')),
                 $this->createMock(PathInterface::class),
                 'spark'
             ),
             $bar = new Installation(
                 new Name('bar'),
-                Stream::of('string', 'foo/bar'),
+                Stream::of(
+                    Gene::class,
+                    new Gene(
+                        new Gene\Name('foo/bar'),
+                        $this->createMock(PathInterface::class)
+                    )
+                ),
                 Stream::of(Name::class, new Name('baz'), new Name('foo')),
                 $this->createMock(PathInterface::class),
                 'spark'
             ),
             $baz = new Installation(
                 new Name('baz'),
-                Stream::of('string', 'foo/bar'),
+                Stream::of(
+                    Gene::class,
+                    new Gene(
+                        new Gene\Name('foo/bar'),
+                        $this->createMock(PathInterface::class)
+                    )
+                ),
                 Stream::of(Name::class),
                 $this->createMock(PathInterface::class),
                 'spark'
@@ -66,14 +85,26 @@ class InstallationArrayTest extends TestCase
         new InstallationArray(
             new Installation(
                 new Name('baz'),
-                Stream::of('string', 'foo/bar'),
+                Stream::of(
+                    Gene::class,
+                    new Gene(
+                        new Gene\Name('foo/bar'),
+                        $this->createMock(PathInterface::class)
+                    )
+                ),
                 Stream::of(Name::class, new Name('foo'), new Name('bar')),
                 $this->createMock(PathInterface::class),
                 'spark'
             ),
             new Installation(
                 new Name('foobar'),
-                Stream::of('string', 'foo/bar'),
+                Stream::of(
+                    Gene::class,
+                    new Gene(
+                        new Gene\Name('foo/bar'),
+                        $this->createMock(PathInterface::class)
+                    )
+                ),
                 Stream::of(Name::class, new Name('bar')),
                 $this->createMock(PathInterface::class),
                 'spark'

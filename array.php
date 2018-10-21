@@ -5,6 +5,7 @@ use Innmind\GuiltySpark\{
     InstallationArray,
     Installation,
     Installation\Name,
+    Installation\Gene,
 };
 use Innmind\Url\Path;
 use Innmind\Immutable\Stream;
@@ -14,11 +15,23 @@ return function(): InstallationArray {
         new Installation(
             new Name('00'),
             Stream::of(
-                'string',
-                'innmind/infrastructure-neo4j',
-                'innmind/library',
-                'innmind/infrastructure-nginx',
-                'innmind/warden'
+                Gene::class,
+                new Gene(
+                    new Gene\Name('innmind/infrastructure-neo4j'),
+                    new Path('/root')
+                ),
+                new Gene(
+                    new Gene\Name('innmind/library'),
+                    new Path('/root')
+                ),
+                new Gene(
+                    new Gene\Name('innmind/infrastructure-nginx'),
+                    new Path('/root')
+                ),
+                new Gene(
+                    new Gene\Name('innmind/warden'),
+                    new Path('/root')
+                )
             ),
             Stream::of(Name::class),
             new Path('.'),
@@ -26,7 +39,17 @@ return function(): InstallationArray {
         ),
         new Installation(
             new Name('01'),
-            Stream::of('string', 'innmind/crawler-app', 'innmind/warden'),
+            Stream::of(
+                Gene::class,
+                new Gene(
+                    new Gene\Name('innmind/crawler-app'),
+                    new Path('/root')
+                ),
+                new Gene(
+                    new Gene\Name('innmind/warden'),
+                    new Path('/root')
+                )
+            ),
             Stream::of(
                 Name::class,
                 new Name('00'),
@@ -37,7 +60,17 @@ return function(): InstallationArray {
         ),
         new Installation(
             new Name('02'),
-            Stream::of('string', 'innmind/infrastructure-amqp', 'innmind/warden'),
+            Stream::of(
+                Gene::class,
+                new Gene(
+                    new Gene\Name('innmind/infrastructure-amqp'),
+                    new Path('/root')
+                ),
+                new Gene(
+                    new Gene\Name('innmind/warden'),
+                    new Path('/root')
+                )
+            ),
             Stream::of(Name::class),
             new Path('.'),
             ''
