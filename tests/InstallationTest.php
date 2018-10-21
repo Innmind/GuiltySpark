@@ -8,6 +8,7 @@ use Innmind\GuiltySpark\{
     Installation\Name,
     Installation\Gene,
     Loader\PHP,
+    Deployment,
     Exception\InstallationMustExpressAtLeastOneGene,
 };
 use Innmind\Ark\Installation as Deployed;
@@ -23,10 +24,7 @@ use Innmind\Server\Control\{
     Server\Process,
     Server\Process\ExitCode,
 };
-use Innmind\Immutable\{
-    Stream,
-    Map,
-};
+use Innmind\Immutable\Stream;
 use PHPUnit\Framework\TestCase;
 
 class InstallationTest extends TestCase
@@ -188,12 +186,9 @@ class InstallationTest extends TestCase
             Url::fromString('http://vps-02/')
         );
 
-        $specifications = (new Map('string', Installation::class))
-            ->put('00', $installation00)
-            ->put('02', $installation02);
-        $deployed = (new Map(Installation::class, Deployed::class))
-            ->put($installation00, $deployed00)
-            ->put($installation02, $deployed02);
+        $deployment = new Deployment;
+        $deployment->deployed($installation00->name(), $deployed00);
+        $deployment->deployed($installation02->name(), $deployed02);
 
         $server = $this->createMock(Server::class);
         $server
@@ -238,8 +233,7 @@ class InstallationTest extends TestCase
 
         $this->assertNull($installation01->deployTowerOn(
             $server,
-            $specifications,
-            $deployed
+            $deployment
         ));
     }
 }

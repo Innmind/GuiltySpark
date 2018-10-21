@@ -122,21 +122,14 @@ final class Installation
         $expressOn($server);
     }
 
-    /**
-     * @param MapInterface<string, self> $specifications
-     * @param MapInterface<self, Deployed> $deployed
-     */
     public function deployTowerOn(
         Server $server,
-        MapInterface $specifications,
-        MapInterface $deployed
+        Deployment $deployment
     ): void {
         $neighbours = $this->contacts->reduce(
             [],
-            static function(array $neighbours, Name $contact) use ($specifications, $deployed): array {
-                $installation = $deployed->get(
-                    $specifications->get((string) $contact)
-                );
+            static function(array $neighbours, Name $contact) use ($deployment): array {
+                $installation = $deployment->get($contact);
                 $neighbours[(string) $contact] = [
                     'url' => (string) $installation
                         ->location()
