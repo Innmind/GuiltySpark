@@ -7,9 +7,20 @@ use Innmind\GuiltySpark\{
     Installation,
     Installation\Name,
     Installation\Gene,
+    Loader\PHP,
     Exception\InstallationMustExpressAtLeastOneGene,
 };
-use Innmind\Url\PathInterface;
+use Innmind\Url\{
+    PathInterface,
+    Path,
+};
+use Innmind\Server\Control\{
+    Server,
+    Server\Processes,
+    Server\Command,
+    Server\Process,
+    Server\Process\ExitCode,
+};
 use Innmind\Immutable\Stream;
 use PHPUnit\Framework\TestCase;
 
@@ -113,5 +124,45 @@ class InstallationTest extends TestCase
         $this->assertFalse($foo->dependsOn($foo));
         $this->assertFalse($bar->dependsOn($bar));
         $this->assertFalse($bar->dependsOn($foo));
+    }
+
+    public function testExpressOn()
+    {
+        $installation = (new PHP)(new Path('array.php'))->current();
+        $server = $this->createMock(Server::class);
+        $server
+            ->expects($this->once())
+            ->method('processes')
+            ->willReturn($processes = $this->createMock(Processes::class));
+
+        $genes = [
+            'innmind/infrastructure-neo4j',
+            'innmind/library',
+            'innmind/infrastructure-nginx',
+            'innmind/warden',
+        ];
+
+        foreach ($genes as $i => $gene) {
+            $processes
+                ->expects($this->at($i))
+                ->method('execute')
+                ->with(
+                    Command::foreground('genome')
+                        ->withArgument('express')
+                        ->withArgument($gene)
+                        ->withArgument('/root')
+                )
+                ->willReturn($process = $this->createMock(Process::class));
+            $process
+                ->expects($this->once())
+                ->method('wait')
+                ->will($this->returnSelf());
+            $process
+                ->expects($this->once())
+                ->method('exitCode')
+                ->willReturn(new ExitCode(0));
+        }
+
+        $this->assertNull($installation->expressOn($server));
     }
 }

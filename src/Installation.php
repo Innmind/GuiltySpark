@@ -8,9 +8,15 @@ use Innmind\GuiltySpark\{
     Installation\Gene,
     Exception\InstallationMustExpressAtLeastOneGene,
 };
+use Innmind\Server\Control\{
+    Server,
+    Server\Command,
+    Server\Script,
+};
 use Innmind\Url\PathInterface;
 use Innmind\Immutable\{
     StreamInterface,
+    Stream,
     SetInterface,
     Set,
 };
@@ -95,5 +101,23 @@ final class Installation
                 }
             )
             ->contains((string) $installation->name());
+    }
+
+    public function expressOn(Server $server): void
+    {
+        $commands = $this->genes->reduce(
+            Stream::of(Command::class),
+            static function(StreamInterface $commands, Gene $gene): StreamInterface {
+                return $commands->add(
+                    Command::foreground('genome')
+                        ->withArgument('express')
+                        ->withArgument((string) $gene->name())
+                        ->withArgument((string) $gene->directory())
+                );
+            }
+        );
+        $expressOn = new Script(...$commands);
+
+        $expressOn($server);
     }
 }
