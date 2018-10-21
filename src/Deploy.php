@@ -17,7 +17,8 @@ use Innmind\Immutable\Stream;
 final class Deploy
 {
     private $forge;
-    private $server;
+    private $remote;
+    private $prerequisites;
 
     public function __construct(
         Forge $forge,
