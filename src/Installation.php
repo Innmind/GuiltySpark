@@ -65,14 +65,6 @@ final class Installation
     }
 
     /**
-     * @return StreamInterface<Gene>
-     */
-    public function genes(): StreamInterface
-    {
-        return $this->genes;
-    }
-
-    /**
      * @return StreamInterface<Name>
      */
     public function contacts(): StreamInterface

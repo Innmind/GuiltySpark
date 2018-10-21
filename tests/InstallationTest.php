@@ -30,7 +30,7 @@ class InstallationTest extends TestCase
     {
         $installation = new Installation(
             $name = new Name('foo'),
-            $genes = Stream::of(
+            Stream::of(
                 Gene::class,
                 new Gene(
                     new Gene\Name('foo/bar'),
@@ -43,7 +43,6 @@ class InstallationTest extends TestCase
         );
 
         $this->assertSame($name, $installation->name());
-        $this->assertSame($genes, $installation->genes());
         $this->assertSame($contacts, $installation->contacts());
         $this->assertSame($path, $installation->workingDirectory());
         $this->assertSame('spark', $installation->spark());
