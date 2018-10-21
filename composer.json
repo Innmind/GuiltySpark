@@ -20,6 +20,7 @@
         "innmind/immutable": "^2.8",
         "symfony/yaml": "^4.0",
         "innmind/server-control": "^2.6",
+        "innmind/operating-system": "^1.0",
         "innmind/ark": "^1.2"
     },
     "autoload": {
