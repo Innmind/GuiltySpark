@@ -1,8 +1,8 @@
 installations:
     '00':
         express:
-            - innmind/library
             - innmind/infrastructure-neo4j
+            - innmind/library
             - innmind/infrastructure-nginx
             - innmind/warden
         spark: ''
