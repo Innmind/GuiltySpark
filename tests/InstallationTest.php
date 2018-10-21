@@ -10,7 +10,9 @@ use Innmind\GuiltySpark\{
     Loader\PHP,
     Exception\InstallationMustExpressAtLeastOneGene,
 };
+use Innmind\Ark\Installation as Deployed;
 use Innmind\Url\{
+    Url,
     PathInterface,
     Path,
 };
@@ -21,7 +23,10 @@ use Innmind\Server\Control\{
     Server\Process,
     Server\Process\ExitCode,
 };
-use Innmind\Immutable\Stream;
+use Innmind\Immutable\{
+    Stream,
+    Map,
+};
 use PHPUnit\Framework\TestCase;
 
 class InstallationTest extends TestCase
@@ -163,5 +168,78 @@ class InstallationTest extends TestCase
         }
 
         $this->assertNull($installation->expressOn($server));
+    }
+
+    public function testDeployTowerOn()
+    {
+        $array = (new PHP)(new Path('array.php'));
+        $installation00 = $array->current();
+        $array->next();
+        $installation02 = $array->current();
+        $array->next();
+        $installation01 = $array->current();
+
+        $deployed00 = new Deployed(
+            new Deployed\Name('vps-00'),
+            Url::fromString('http://vps-00/')
+        );
+        $deployed02 = new Deployed(
+            new Deployed\Name('vps-02'),
+            Url::fromString('http://vps-02/')
+        );
+
+        $specifications = (new Map('string', Installation::class))
+            ->put('00', $installation00)
+            ->put('02', $installation02);
+        $deployed = (new Map(Installation::class, Deployed::class))
+            ->put($installation00, $deployed00)
+            ->put($installation02, $deployed02);
+
+        $server = $this->createMock(Server::class);
+        $server
+            ->expects($this->once())
+            ->method('processes')
+            ->willReturn($processes = $this->createMock(Processes::class));
+        $processes
+            ->expects($this->at(0))
+            ->method('execute')
+            ->with(
+                Command::foreground('echo')
+                    ->withArgument("{ neighbours: { '00': { url: 'tcp://vps-00:1337/' }, '02': { url: 'tcp://vps-02:1337/' } }, actions: ['composer global update innmind/genome', 'composer global update innmind/tower', 'genome mutate'] }")
+                    ->overwrite('/root/.innmind/tower.yml')
+            )
+            ->willReturn($process = $this->createMock(Process::class));
+        $process
+            ->expects($this->once())
+            ->method('wait')
+            ->will($this->returnSelf());
+        $process
+            ->expects($this->once())
+            ->method('exitCode')
+            ->willReturn(new ExitCode(0));
+        $processes
+            ->expects($this->at(1))
+            ->method('execute')
+            ->with(
+                Command::foreground('genome')
+                    ->withArgument('express')
+                    ->withArgument('innmind/tower')
+                    ->withArgument('/root/.innmind')
+            )
+            ->willReturn($process = $this->createMock(Process::class));
+        $process
+            ->expects($this->once())
+            ->method('wait')
+            ->will($this->returnSelf());
+        $process
+            ->expects($this->once())
+            ->method('exitCode')
+            ->willReturn(new ExitCode(0));
+
+        $this->assertNull($installation01->deployTowerOn(
+            $server,
+            $specifications,
+            $deployed
+        ));
     }
 }

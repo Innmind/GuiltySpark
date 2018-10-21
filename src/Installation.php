@@ -13,13 +13,22 @@ use Innmind\Server\Control\{
     Server\Command,
     Server\Script,
 };
-use Innmind\Url\PathInterface;
+use Innmind\Url\{
+    PathInterface,
+    Scheme,
+    Authority\Port,
+    NullPath,
+    NullQuery,
+    NullFragment,
+};
 use Innmind\Immutable\{
     StreamInterface,
     Stream,
     SetInterface,
     Set,
+    MapInterface,
 };
+use Symfony\Component\Yaml\Yaml;
 
 final class Installation
 {
@@ -111,5 +120,59 @@ final class Installation
         $expressOn = new Script(...$commands);
 
         $expressOn($server);
+    }
+
+    /**
+     * @param MapInterface<string, self> $specifications
+     * @param MapInterface<self, Deployed> $deployed
+     */
+    public function deployTowerOn(
+        Server $server,
+        MapInterface $specifications,
+        MapInterface $deployed
+    ): void {
+        $neighbours = $this->contacts->reduce(
+            [],
+            static function(array $neighbours, Name $contact) use ($specifications, $deployed): array {
+                $installation = $deployed->get(
+                    $specifications->get((string) $contact)
+                );
+                $neighbours[(string) $contact] = [
+                    'url' => (string) $installation
+                        ->location()
+                        ->withScheme(new Scheme('tcp'))
+                        ->withAuthority(
+                            $installation->location()->authority()->withPort(new Port(1337))
+                        )
+                        ->withPath(new NullPath)
+                        ->withQuery(new NullQuery)
+                        ->withFragment(new NullFragment),
+                ];
+
+                return $neighbours;
+            }
+        );
+        $towerConfig = Yaml::dump(
+            [
+                'neighbours' => $neighbours,
+                'actions' => [
+                    'composer global update innmind/genome',
+                    'composer global update innmind/tower',
+                    'genome mutate',
+                ],
+            ],
+            0
+        );
+        $deploy = new Script(
+            Command::foreground('echo')
+                ->withArgument($towerConfig)
+                ->overwrite('/root/.innmind/tower.yml'),
+            Command::foreground('genome')
+                ->withArgument('express')
+                ->withArgument('innmind/tower')
+                ->withArgument('/root/.innmind')
+        );
+
+        $deploy($server);
     }
 }
