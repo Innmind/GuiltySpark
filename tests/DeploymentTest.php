@@ -9,6 +9,7 @@ use Innmind\GuiltySpark\{
 };
 use Innmind\Ark\Installation;
 use Innmind\Url\UrlInterface;
+use Innmind\Immutable\SetInterface;
 use PHPUnit\Framework\TestCase;
 
 class DeploymentTest extends TestCase
@@ -25,6 +26,10 @@ class DeploymentTest extends TestCase
             )
         ));
         $this->assertSame($installation, $deployment->get(new Name('foo')));
+        $this->assertInstanceOf(SetInterface::class, $deployment->installations());
+        $this->assertSame(Installation::class, (string) $deployment->installations()->type());
+        $this->assertCount(1, $deployment->installations());
+        $this->assertSame([$installation], $deployment->installations()->toPrimitive());
 
         $this->expectException(\InvalidArgumentException::class);
 

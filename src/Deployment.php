@@ -5,7 +5,11 @@ namespace Innmind\GuiltySpark;
 
 use Innmind\GuiltySpark\Installation\Name;
 use Innmind\Ark\Installation;
-use Innmind\Immutable\Map;
+use Innmind\Immutable\{
+    Map,
+    SetInterface,
+    Set,
+};
 
 final class Deployment
 {
@@ -27,5 +31,13 @@ final class Deployment
     public function get(Name $name): Installation
     {
         return $this->installations->get((string) $name);
+    }
+
+    /**
+     * @return SetInterface<Installation>
+     */
+    public function installations(): SetInterface
+    {
+        return Set::of(Installation::class, ...$this->installations->values());
     }
 }
